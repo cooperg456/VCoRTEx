@@ -7,6 +7,5 @@
 
 /vis/scene/add/trajectories smooth
 /vis/scene/endOfEventAction accumulate
-/vis/scene/add/scale 10 cm
-/vis/scene/add/axes
+/vis/scene/add/axes -0.05 -0.05 -0.25
 /vis/scene/add/eventID

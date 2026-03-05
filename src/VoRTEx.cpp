@@ -25,6 +25,8 @@ Tutorials referenced:
 #include "G4UIExecutive.hh"
 #include "G4VisExecutive.hh"
 
+#include "QGSP_BERT.hh"
+
 
 int main(int argc, char** argv) {
 	//	splash text
@@ -57,9 +59,9 @@ int main(int argc, char** argv) {
 
 	//	ui manager
 	G4UImanager *uiManager = G4UImanager::GetUIpointer();
-	uiManager->ApplyCommand("/run/verbose 1");
-	uiManager->ApplyCommand("/event/verbose 1");
-	uiManager->ApplyCommand("/tracking/verbose 1");
+	//uiManager->ApplyCommand("/run/verbose 1");
+	//uiManager->ApplyCommand("/event/verbose 1");
+	//uiManager->ApplyCommand("/tracking/verbose 1");
 
 	//	start session
 	if (argc == 1) {
