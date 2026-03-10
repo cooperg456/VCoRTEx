@@ -47,7 +47,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	TiO2_CoatingMat->AddElement(elH, 37.8724120518 * perCent);
 	TiO2_CoatingMat->AddElement(elO, 31.9811479549 * perCent);
 	G4MaterialPropertiesTable *mptTiO2_Coating = new G4MaterialPropertiesTable();
-	//...
+
+		//	optical properties ...
+
 	TiO2_CoatingMat->SetMaterialPropertiesTable(mptTiO2_Coating);
 
 
