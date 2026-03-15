@@ -8,9 +8,9 @@ PrimaryGenerator::PrimaryGenerator() {
 	G4double z = 0.		* m;
 	G4ThreeVector position(x, y, z);
 
-	G4double px = 0.	* m;
+	G4double px = 0.2	* m;
 	G4double py = -1.	* m;
-	G4double pz = 0.	* m;
+	G4double pz = 0.5	* m;
 	G4ThreeVector momentum(px, py, pz);
 
 	G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();

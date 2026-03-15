@@ -41,7 +41,7 @@
 
 # other
 .vscode
-.scripts
 .DS_store
+scripts
 build
 bin
