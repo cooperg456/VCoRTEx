@@ -13,6 +13,7 @@
 #include "G4OpticalSurface.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4VisAttributes.hh"
 
 
 
@@ -261,18 +262,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//	photon detector
 	G4Box *solidSiPM					= new G4Box("solidChannelCore", sipmSidelength / 2, sipmSidelength / 2, sipmThickness / 2);
 
-	G4LogicalVolume *logicSiPM 			= new G4LogicalVolume(solidSiPM, Si, "logicSiPM");
+	logicSiPM 							= new G4LogicalVolume(solidSiPM, Si, "logicSiPM");
 	G4VPhysicalVolume *physSiPM 		= new G4PVPlacement(0, G4ThreeVector(0., 0., (barLength + sipmThickness) / 2 + fiberStickout), logicSiPM, "physSiPM", logicWorld, false, 0, checkOverlaps);
 
 
 
 
-	/*
+	
 	//-----------------------------------------------------------------------------
 	//	optical surfaces
 	//-----------------------------------------------------------------------------
 
-	//	scintillator - coating
+	//	coating
 	G4OpticalSurface *scintCoatSurface = new G4OpticalSurface("scintCoatSurface");
 	scintCoatSurface->SetType(dielectric_metal);
 	scintCoatSurface->SetFinish(groundfrontpainted);
@@ -283,9 +284,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	mptCoat->AddProperty("REFLECTIVITY", smallArrayEnergy, reflectivityCoat, 2);
 	scintCoatSurface->SetMaterialPropertiesTable(mptCoat);
 
-	new G4LogicalBorderSurface("scintCoatSurf", physScint, physCoat, scintCoatSurface);
+	new G4LogicalBorderSurface("scintCoatSurf", physScintCenter, physCoat, scintCoatSurface);
+	new G4LogicalBorderSurface("scintCoatSurf", physScintSideR, physCoat, scintCoatSurface);
+	new G4LogicalBorderSurface("scintCoatSurf", physScintSideL, physCoat, scintCoatSurface);
+	new G4LogicalBorderSurface("scintCoatSurf", physScintCorner1, physCoat, scintCoatSurface);
+	new G4LogicalBorderSurface("scintCoatSurf", physScintCorner2, physCoat, scintCoatSurface);
+	new G4LogicalBorderSurface("scintCoatSurf", physScintCorner3, physCoat, scintCoatSurface);
+	new G4LogicalBorderSurface("scintCoatSurf", physScintCorner4, physCoat, scintCoatSurface);
 
-	//	scintillator - reflector
+	//	reflector
 	G4OpticalSurface *scintRefSurface = new G4OpticalSurface("scintRefSurface");
 	scintRefSurface->SetType(dielectric_metal);
 	scintRefSurface->SetFinish(polished);
@@ -295,7 +302,26 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	G4double reflectivityRef[2] = {0.95, 0.95};
 	mptRef->AddProperty("REFLECTIVITY", smallArrayEnergy, reflectivityRef, 2);
 	scintRefSurface->SetMaterialPropertiesTable(mptRef);
-	*/
+
+	new G4LogicalBorderSurface("scintRefSurface", physScintCenter, physMirror1, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintSideR, physMirror1, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintSideL, physMirror1, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner1, physMirror1, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner2, physMirror1, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner3, physMirror1, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner4, physMirror1, scintRefSurface);
+
+	new G4LogicalBorderSurface("scintRefSurface", physScintCenter, physMirror2, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintSideR, physMirror2, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintSideL, physMirror2, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner1, physMirror2, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner2, physMirror2, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner3, physMirror2, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physScintCorner4, physMirror2, scintRefSurface);
+
+	new G4LogicalBorderSurface("scintRefSurface", physFiberClad, physMirror1, scintRefSurface);
+	new G4LogicalBorderSurface("scintRefSurface", physFiberCore, physMirror1, scintRefSurface);
+	
 
 
 

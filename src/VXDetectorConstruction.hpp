@@ -14,7 +14,7 @@ public:
 	virtual G4VPhysicalVolume *Construct() override;
 
 private:
-	G4LogicalVolume *logicDetector;
+	G4LogicalVolume *logicSiPM;
 
 	virtual void ConstructSDandField() override;
 };
