@@ -1,5 +1,23 @@
 #include "VXDetectorConstruction.hpp"
 
+#include "G4Box.hh"
+#include "G4Tubs.hh"
+#include "G4LogicalVolume.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4PVPlacement.hh"
+#include "G4Material.hh"
+#include "G4NistManager.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4UnitsTable.hh"
+#include "G4SDManager.hh"
+#include "G4OpticalSurface.hh"
+#include "G4LogicalBorderSurface.hh"
+#include "G4SubtractionSolid.hh"
+
+
+
+
+
 G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	G4bool checkOverlaps = true;
@@ -32,18 +50,22 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//	dimensions
 	//-----------------------------------------------------------------------------
 
-	const G4double scintLength 		= 32.0 	* cm;
-	const G4double scindWidth 		= 4.00 	* cm;
-	const G4double scintHeight 		= 1.00 	* cm;
-	const G4double coatThickness 	= 0.10 	* mm;
-	const G4double cornerRadius 	= 2.00 	* mm;
-	const G4double mirrorThickness	= 0.30	* mm;
-	const G4double channelWidth		= 2.00	* mm;
-	const G4double channelHeight	= 3.00	* mm;
-	const G4double fiberdiameter	= 1.00	* mm;
-	const G4double cladThickness	= 0.30	* mm;
+
+	const G4double barLength 		= 32.0 	* cm;
+	const G4double barWidth 		= 4.00 	* cm;
+	const G4double barHeight 		= 1.00 	* cm;
+	const G4double coatThickness 	= 0.25 	* mm;
+	const G4double scindWidth 		= barWidth - coatThickness;
+	const G4double scintHeight 		= barHeight - coatThickness;
+	const G4double cornerRadius 	= 2.50 	* mm;
+	const G4double mirrorThickness	= 0.03	* mm;
+	const G4double channelWidth		= 2.50	* mm;
+	const G4double channelHeight	= 4.00	* mm;
+	const G4double fiberDiameter	= 1.00	* mm;
+	const G4double cladThickness	= 0.03	* mm;
 	const G4double fiberStickout	= 10.0	* mm;
 	const G4double sipmSidelength	= 2.00	* mm;
+	const G4double sipmThickness	= 1.35	* mm;
 
 
 
@@ -103,6 +125,13 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	PMMA->AddElement(nist->FindOrBuildElement("C"), 5);
 	PMMA->AddElement(nist->FindOrBuildElement("H"), 8);
 	PMMA->AddElement(nist->FindOrBuildElement("O"), 2);
+	G4MaterialPropertiesTable *mptPMMA = new G4MaterialPropertiesTable();
+
+	G4double rindexPMMA[2] = {1.59, 1.59};
+
+	mptPMMA->AddProperty("RINDEX", smallArrayEnergy, rindexPMMA, 2);
+
+	PMMA->SetMaterialPropertiesTable(mptPMMA);
 
 	// wls polystyrene (wls fiber core)
 	G4Material *fiberCoreMat = new G4Material("VX_WLS_POLYSTYRENE", 1.05 * g / cm3, 1);
@@ -143,57 +172,102 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//-----------------------------------------------------------------------------
 
 	//	worldbox
-	G4Box *solidWorld = new G4Box("solidWorld", 0.1 * (0.5 * m), 0.1 * (0.5 * m), 0.5 * (0.5 * m));
+	G4Box *solidWorld 					= new G4Box("solidWorld", 0.1 * (0.5 * m), 0.1 * (0.5 * m), 0.5 * (0.5 * m));
 
-	G4LogicalVolume *logicWorld 	= new G4LogicalVolume(solidWorld, airMat, "logicWorld");
-	G4VPhysicalVolume *physWorld 	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, checkOverlaps);
+	G4LogicalVolume *logicWorld 		= new G4LogicalVolume(solidWorld, airMat, "logicWorld");
+	G4VPhysicalVolume *physWorld 		= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, checkOverlaps);
 
-	//	scintillator
-	G4Box *solidBar = new G4Box("solidBar", 0.04 * (0.5 * m), 0.01 * (0.5 * m), 0.32 * (0.5 * m));
-	std::vector<G4TwoVector> channel;
-	for (int i = 0; i <= 32; i++) {
-		G4double theta = M_PI * i / 32;
-		channel.push_back(G4TwoVector(0.002 * (0.5 * m) * cos(theta), 0.002 * (0.5 * m) + 0.002 * (0.5 * m) * sin(theta)));
-	}
-	for (int i = 0; i <= 32; i++) {
-		G4double theta = M_PI + M_PI * i / 32;
-		channel.push_back(G4TwoVector(0.002 * (0.5 * m) * cos(theta), -0.002 * (0.5 * m) + 0.002 * (0.5 * m) * sin(theta)));
-	}
-	G4ExtrudedSolid *solidChannel 	= new G4ExtrudedSolid("solidChannel", channel, 0.33 * (0.5 * m), G4TwoVector(0, 0), 1.0, G4TwoVector(0, 0), 1.0);
-	G4SubtractionSolid *solidScint 	= new G4SubtractionSolid("solidScint", solidBar, solidChannel);
+	//	scintillator coating
+	G4Box *solidCoat 					= new G4Box("solidCoat", barWidth/ 2, barHeight / 2, barLength / 2);
 
-	G4LogicalVolume *logicScint 	= new G4LogicalVolume(solidScint, scintMat, "logicScint");
-	G4VPhysicalVolume *physScint 	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicScint, "physScint", logicWorld, false, 0, checkOverlaps);
+	G4LogicalVolume *logicCoat 			= new G4LogicalVolume(solidCoat, coatingMat, "logicCoat");
+	G4VPhysicalVolume *physCoat 		= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicCoat, "physCoat", logicWorld, false, 0, checkOverlaps);
 
-	//	coating
-	G4Box *solidCoat_ = new G4Box("solidCoat_", 0.0402 * (0.5 * m), 0.0102 * (0.5 * m), 0.32 * (0.5 * m));
-	G4SubtractionSolid *solidCoat = new G4SubtractionSolid("solidCoat", solidCoat_, solidBar);
+	//	scintillator bar
+	G4Box *solidScintCenter				= new G4Box("solidScintCenter", scindWidth / 2 - cornerRadius, scintHeight / 2, barLength / 2);
+	G4Box *solidScintSide				= new G4Box("solidScintSide", cornerRadius / 2, scintHeight / 2 - cornerRadius, barLength / 2);
+	G4Tubs *solidScintCorner			= new G4Tubs("solidScintCorner", 0., cornerRadius, barLength / 2, 0. * deg, 90. * deg);
 
-	G4LogicalVolume *logicCoat 		= new G4LogicalVolume(solidCoat, coatingMat, "logicCoat");
-	G4VPhysicalVolume *physCoat 	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicCoat, "physCoat", logicWorld, false, 0, checkOverlaps);
+	G4LogicalVolume *logicScintCenter 	= new G4LogicalVolume(solidScintCenter, scintMat, "logicScintCenter");
+	G4VPhysicalVolume *physScintCenter	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicScintCenter, "physScintCenter", logicCoat, false, 0, checkOverlaps);
 
-	//	reflectors
-	G4Box *solidRef1 = new G4Box("solidRef1", 0.0402 * (0.5 * m), 0.0102 * (0.5 * m), 0.00015 * (0.5 * m));
+	G4LogicalVolume *logicScintSideR 	= new G4LogicalVolume(solidScintSide, scintMat, "logicScintSideR");
+	G4VPhysicalVolume *physScintSideR	= new G4PVPlacement(0, G4ThreeVector((scindWidth - cornerRadius) / 2, 0., 0.), logicScintSideR, "physScintSideR", logicCoat, false, 0, checkOverlaps);
 
-	G4LogicalVolume *logicRef1 		= new G4LogicalVolume(solidRef1, Al, "logicRef1");
-	G4VPhysicalVolume *physRef1 	= new G4PVPlacement(0, G4ThreeVector(0., 0., -0.16015 * m), logicRef1, "physRef1", logicWorld, false, 0, checkOverlaps);
+	G4LogicalVolume *logicScintSideL 	= new G4LogicalVolume(solidScintSide, scintMat, "logicScintSideL");
+	G4VPhysicalVolume *physScintSideL	= new G4PVPlacement(0, G4ThreeVector(- (scindWidth - cornerRadius) / 2, 0., 0.), logicScintSideL, "physScintSideL", logicCoat, false, 0, checkOverlaps);
 
-	G4Box *solidRef2_ = new G4Box("solidRef2_", 0.0402 * (0.5 * m), 0.0102 * (0.5 * m), 0.00015 * (0.5 * m));
-	G4SubtractionSolid *solidRef2 	= new G4SubtractionSolid("solidRef2", solidRef2_, solidBar);
-	
-	G4LogicalVolume *logicRef2 		= new G4LogicalVolume(solidRef2, Al, "logicRef2");
-	G4VPhysicalVolume *physRef2 	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.16015 * m), logicRef1, "physRef2", logicWorld, false, 0, checkOverlaps);
+	G4LogicalVolume *logicScintCorner1	= new G4LogicalVolume(solidScintCorner, scintMat, "logicScintCorner1");
+	G4VPhysicalVolume *physScintCorner1	= new G4PVPlacement(0, G4ThreeVector(scindWidth / 2 - cornerRadius, scintHeight / 2 - cornerRadius, 0.), logicScintCorner1, "physScintCorner1", logicCoat, false, 0, checkOverlaps);
+
+	auto rot1 = new G4RotationMatrix();
+	rot1->rotateZ(90. * deg);
+	G4LogicalVolume *logicScintCorner2	= new G4LogicalVolume(solidScintCorner, scintMat, "logicScintCorner2");
+	G4VPhysicalVolume *physScintCorner2	= new G4PVPlacement(rot1, G4ThreeVector(scindWidth / 2 - cornerRadius, -(scintHeight / 2 - cornerRadius), 0.), logicScintCorner2, "physScintCorner2", logicCoat, false, 0, checkOverlaps);
+
+	auto rot2 = new G4RotationMatrix();
+	rot2->rotateZ(180. * deg);
+	G4LogicalVolume *logicScintCorner3	= new G4LogicalVolume(solidScintCorner, scintMat, "logicScintCorner3");
+	G4VPhysicalVolume *physScintCorner3	= new G4PVPlacement(rot2, G4ThreeVector(-(scindWidth / 2 - cornerRadius), -(scintHeight / 2 - cornerRadius), 0.), logicScintCorner3, "physScintCorner3", logicCoat, false, 0, checkOverlaps);
+
+	auto rot3 = new G4RotationMatrix();
+	rot3->rotateZ(-90. * deg);
+	G4LogicalVolume *logicScintCorner4	= new G4LogicalVolume(solidScintCorner, scintMat, "logicScintCorner4");
+	G4VPhysicalVolume *physScintCorner4	= new G4PVPlacement(rot3, G4ThreeVector(-(scindWidth / 2 - cornerRadius), scintHeight / 2 - cornerRadius, 0.), logicScintCorner4, "physScintCorner4", logicCoat, false, 0, checkOverlaps);
+
+	//	scintillator channel
+	G4Box *solidChannelCore				= new G4Box("solidChannelCore", channelWidth / 2, (channelHeight - channelWidth) / 2, barLength / 2);
+	G4Tubs *solidChannelSide			= new G4Tubs("solidChannelSide", 0., channelWidth / 2, barLength / 2, 0., 180. * deg);
+
+	G4LogicalVolume *logicChannelCore 	= new G4LogicalVolume(solidChannelCore, airMat, "logicChannelCore");
+	G4VPhysicalVolume *physChannelCore	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicChannelCore, "physChannelCore", logicScintCenter, false, 0, checkOverlaps);
+
+	G4LogicalVolume *logicChannelSideT 	= new G4LogicalVolume(solidChannelSide, airMat, "logicChannelSideT");
+	G4VPhysicalVolume *physChannelSideT	= new G4PVPlacement(0, G4ThreeVector(0., (channelHeight - channelWidth) / 2, 0.), logicChannelSideT, "physChannelSideT", logicScintCenter, false, 0, checkOverlaps);
+
+	G4LogicalVolume *logicChannelSideB 	= new G4LogicalVolume(solidChannelSide, airMat, "logicChannelSideB");
+	G4VPhysicalVolume *physChannelSideB	= new G4PVPlacement(rot2, G4ThreeVector(0., -(channelHeight - channelWidth) / 2, 0.), logicChannelSideB, "physChannelSideB", logicScintCenter, false, 0, checkOverlaps);
 
 	//	optical fiber
-	G4Tubs *solidFiber = new G4Tubs("solidFiber", 0., 0.001 * (0.5 * m), 0.33 * (0.5 * m), 0., 360. * deg);
+	G4Tubs *solidFiberClad 				= new G4Tubs("solidFiberClad", 0., fiberDiameter / 2, barLength / 2, 0., 360. * deg);
+	G4Tubs *solidFiberCore 				= new G4Tubs("solidFiberCore", 0., (fiberDiameter - cladThickness) / 2, barLength / 2, 0., 360. * deg);
+	G4Tubs *solidFiberCladShort			= new G4Tubs("solidFiberCladShort", 0., fiberDiameter / 2, fiberStickout / 2, 0., 360. * deg);
+	G4Tubs *solidFiberCoreShort 		= new G4Tubs("solidFiberCoreShort", 0., (fiberDiameter - cladThickness) / 2, fiberStickout / 2, 0., 360. * deg);
 
-	G4LogicalVolume *logicFiber 	= new G4LogicalVolume(solidFiber, fiberCoreMat, "logicFiber");
-	G4VPhysicalVolume *physFiber 	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.005 * m), logicFiber, "physFiber", logicWorld, false, 0, checkOverlaps);
+	G4LogicalVolume *logicFiberClad 	= new G4LogicalVolume(solidFiberClad, PMMA, "logicFiberClad");
+	G4VPhysicalVolume *physFiberClad 	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicFiberClad, "physFiberClad", logicChannelCore, false, 0, checkOverlaps);
+
+	G4LogicalVolume *logicFiberCore 	= new G4LogicalVolume(solidFiberCore, fiberCoreMat, "logicFiberCore");
+	G4VPhysicalVolume *physFiberCore 	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicFiberCore, "physFiberCore", logicFiberClad, false, 0, checkOverlaps);
+
+	G4LogicalVolume *logicFiberClad2 	= new G4LogicalVolume(solidFiberCladShort, PMMA, "logicFiberClad2");
+	G4VPhysicalVolume *physFiberClad2 	= new G4PVPlacement(0, G4ThreeVector(0., 0., (barLength + fiberStickout) / 2), logicFiberClad2, "physFiberClad2", logicWorld, false, 0, checkOverlaps);
+
+	G4LogicalVolume *logicFiberCore2 	= new G4LogicalVolume(solidFiberCoreShort, fiberCoreMat, "logicFiberCore2");
+	G4VPhysicalVolume *physFiberCore2 	= new G4PVPlacement(0, G4ThreeVector(0., 0., (barLength + fiberStickout) / 2), logicFiberCore2, "physFiberCore2", logicWorld, false, 0, checkOverlaps);
+	
+	//	back reflector
+	G4Box *solidMirror1 				= new G4Box("solidMirror1", barWidth / 2, barHeight / 2, mirrorThickness / 2);
+	G4SubtractionSolid *solidMirror2__ 	= new G4SubtractionSolid("solidMirror2__", solidMirror1, solidChannelCore);
+	G4SubtractionSolid *solidMirror2_ 	= new G4SubtractionSolid("solidMirror2_", solidMirror2__, solidChannelSide, 0, G4ThreeVector(0., (channelHeight - channelWidth) / 2, 0.));
+	G4SubtractionSolid *solidMirror2 	= new G4SubtractionSolid("solidMirror2", solidMirror2_, solidChannelSide, rot2, G4ThreeVector(0., -(channelHeight - channelWidth) / 2, 0.));
+
+	G4LogicalVolume *logicMirror1 		= new G4LogicalVolume(solidMirror1, Al, "logicMirror1");
+	G4VPhysicalVolume *physMirror1 		= new G4PVPlacement(0, G4ThreeVector(0., 0., -(barLength + mirrorThickness) / 2), logicMirror1, "physMirror1", logicWorld, false, 0, checkOverlaps);
+
+	G4LogicalVolume *logicMirror2		= new G4LogicalVolume(solidMirror2, Al, "logicMirror2");
+	G4VPhysicalVolume *physMirror2 		= new G4PVPlacement(0, G4ThreeVector(0., 0., (barLength + mirrorThickness) / 2), logicMirror2, "physMirror2", logicWorld, false, 0, checkOverlaps);
+
+	//	photon detector
+	G4Box *solidSiPM					= new G4Box("solidChannelCore", sipmSidelength / 2, sipmSidelength / 2, sipmThickness / 2);
+
+	G4LogicalVolume *logicSiPM 			= new G4LogicalVolume(solidSiPM, Si, "logicSiPM");
+	G4VPhysicalVolume *physSiPM 		= new G4PVPlacement(0, G4ThreeVector(0., 0., (barLength + sipmThickness) / 2 + fiberStickout), logicSiPM, "physSiPM", logicWorld, false, 0, checkOverlaps);
 
 
 
 
-
+	/*
 	//-----------------------------------------------------------------------------
 	//	optical surfaces
 	//-----------------------------------------------------------------------------
@@ -221,7 +295,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	G4double reflectivityRef[2] = {0.95, 0.95};
 	mptRef->AddProperty("REFLECTIVITY", smallArrayEnergy, reflectivityRef, 2);
 	scintRefSurface->SetMaterialPropertiesTable(mptRef);
-
+	*/
 
 
 
