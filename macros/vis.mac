@@ -1,12 +1,14 @@
 /vis/open OGL 600x600-0+0
 
-/vis/viewer/set/viewpointVector 1 1 1
+/vis/viewer/set/viewpointVector 1 0.6 1
 /vis/viewer/set/autoRefresh true
 /vis/viewer/set/culling invisible
+/vis/geometry/set/visibility logicWorld 0 false
 
 /vis/drawVolume
 
 /vis/scene/add/trajectories smooth
 /vis/scene/endOfEventAction accumulate
-/vis/scene/add/axes -0.05 -0.05 -0.25
 /vis/scene/add/eventID
+
+/run/beamOn 1

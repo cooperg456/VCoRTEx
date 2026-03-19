@@ -1,7 +1,9 @@
 #pragma once
 
 #include "G4VUserActionInitialization.hh"
-#include "VXPrimaryGenerator.hpp"
+
+
+
 
 
 class ActionInitialization : public G4VUserActionInitialization {

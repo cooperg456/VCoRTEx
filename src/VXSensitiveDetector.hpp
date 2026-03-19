@@ -1,9 +1,10 @@
 #pragma once
 
-//	geant4
 #include "G4VSensitiveDetector.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4UnitsTable.hh"
+
+
+
+
 
 class SensitiveDetector : public G4VSensitiveDetector {
 public:
