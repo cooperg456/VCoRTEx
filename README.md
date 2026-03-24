@@ -7,7 +7,9 @@ VoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulatio
 
 3)	To serve as an educational tool that provides insight into CoRTEx's inner workings
 
-### Usage
+## Usage
+
+Functionality is provided through CLI interface, as well as Geant4 macro files
 
 ```
 % ./vcortex_sim -h         
@@ -34,4 +36,23 @@ OPTIONS:
                               Particle energy in MeV
   -P,     --particle TEXT [mu-]  
                               Particle type (e.g. mu-, e-, proton)
+```
+
+## Output (CSV)
+
+The Geant4 sim outputs data for each gamma that reaches a SiPM. An example is provided below
+
+```
+x(mm),      y(mm),     z(mm),  energy(eV),  time(ns)
+ 0.0819763,  0.292927,  170.0,  2.42349,     19.0598
+-0.4035620,  0.270916,  170.0,  2.56231,     20.2405
+ 0.1412000,  0.461897,  170.0,  2.50305,     10.9907
+-0.0289133,  0.379356,  170.0,  2.47859,     9.42182
+-0.3030230,  0.081439,  170.0,  2.48985,     18.0228
+ 0.3915990, -0.286169,  170.0,  2.48326,     6.64631
+ 0.1269430,  0.264399,  170.0,  2.55510,    44.4584
+-0.0858036, -0.301851,  170.0,  2.55510,     5.43389
+ 0.0385735,  0.253617,  170.0,  2.60354,    44.6815
+-0.3554940, -0.230052,  170.0,  2.58869,     6.58332
+...
 ```
