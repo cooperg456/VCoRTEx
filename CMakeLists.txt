@@ -5,15 +5,22 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-file(GLOB src ${CMAKE_SOURCE_DIR}/src/*.cpp)
+find_package(Geant4 REQUIRED ui_all vis_all)
 
+file(GLOB src ${CMAKE_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE headers ${CMAKE_SOURCE_DIR}/include/**/*.hpp)
 file(GLOB mac ${CMAKE_SOURCE_DIR}/macros/*.mac)
 file(COPY ${mac} DESTINATION ${CMAKE_BINARY_DIR}/)
 
-add_executable(vcortex_sim)
-target_sources(vcortex_sim PRIVATE ${src})
+foreach(header ${headers})
+    get_filename_component(dir ${header} DIRECTORY)
+    list(APPEND include_dirs ${dir})
+endforeach()
+list(REMOVE_DUPLICATES include_dirs)
 
-find_package(Geant4 REQUIRED ui_all vis_all)
+add_executable(vcortex_sim)
+target_sources(vcortex_sim PRIVATE ${src} ${headers})
+target_include_directories(vcortex_sim PRIVATE ${include_dirs} ${Geant4_INCLUDE_DIRS})
 target_link_libraries(vcortex_sim PRIVATE ${Geant4_LIBRARIES})
 
 target_compile_definitions(vcortex_sim PRIVATE $<$<CONFIG:Debug>:DEBUG>)

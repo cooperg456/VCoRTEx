@@ -1,4 +1,5 @@
 #include "VXDetectorConstruction.hpp"
+#include "VXSensitiveDetector.hpp"
 
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -14,6 +15,14 @@
 #include "G4LogicalBorderSurface.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4VisAttributes.hh"
+
+
+
+
+
+DetectorConstruction::DetectorConstruction(G4String outputFilename) : G4VUserDetectorConstruction() {
+	outFile = outputFilename;
+}
 
 
 
@@ -50,7 +59,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//-----------------------------------------------------------------------------
 	//	dimensions
 	//-----------------------------------------------------------------------------
-
 
 	const G4double barLength 		= 32.0 	* cm;
 	const G4double barWidth 		= 4.00 	* cm;
@@ -94,8 +102,16 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	//	Si (silicon photomultiplier)
 	G4Material *Si = nist->FindOrBuildMaterial("G4_Si");
+	G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
 
-	//	polystyrene scintillator
+	G4double rindexSi[2] = {3.88, 3.88};
+
+	mptSi->AddProperty("RINDEX", smallArrayEnergy, rindexSi, 2);
+
+	Si->SetMaterialPropertiesTable(mptSi);
+
+	//	polystyrene scintillator	
+	//	TODO: find datasheet reference
 	G4Material *scintMat = new G4Material("VX_POLYSTYRENE_SCINTILLATOR", 1.06 * g / cm3, 1);
 	scintMat->AddMaterial(nist->FindOrBuildMaterial("G4_POLYSTYRENE"), 1.);
 	G4MaterialPropertiesTable *mptScint = new G4MaterialPropertiesTable();
@@ -103,15 +119,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	G4double rindexScint[2] = {1.6, 1.6};
 	G4double absLengthScint[2] = {4 * m, 4 * m};
 	G4double emissionScint[50] = {
-		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+		0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  0., 
+		0., 0., 0., 0., 0., 0., 0., 0.003, 0.015, 0.060, 0.185, 0.432, 0.756, 0.955, 1.000, 
+		0.891, 0.648, 0.381, 0.175, 0.060, 0.015, 0.003, 0., 0., 0., 0., 0., 0., 0., 0.
 	};
 
 	mptScint->AddProperty("RINDEX", smallArrayEnergy, rindexScint, 2);
 	mptScint->AddProperty("ABSLENGTH", smallArrayEnergy, absLengthScint, 2);
 	mptScint->AddProperty("SCINTILLATIONCOMPONENT1", bigArrayEnergy, emissionScint, 50);
-	mptScint->AddConstProperty("SCINTILLATIONYIELD", 10. / keV);
+	mptScint->AddConstProperty("SCINTILLATIONYIELD", 8. / keV);
 	mptScint->AddConstProperty("RESOLUTIONSCALE", 1.0);
 	mptScint->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 10. * ns);
 
@@ -125,43 +141,48 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	coatingMat->AddMaterial(nist->FindOrBuildMaterial("G4_POLYSTYRENE"), 85 * perCent);
 
 	//	PMMA (wls fiber cladding)
+	//	REF: https://www.phenix.bnl.gov/WWW/publish/donlynch/RXNP/Safety%20Review%206_22_06/Kuraray-PSF-Y11.pdf
 	G4Material* PMMA = new G4Material("PMMA", 1.19 * g / cm3, 3);
 	PMMA->AddElement(nist->FindOrBuildElement("C"), 5);
 	PMMA->AddElement(nist->FindOrBuildElement("H"), 8);
 	PMMA->AddElement(nist->FindOrBuildElement("O"), 2);
 	G4MaterialPropertiesTable *mptPMMA = new G4MaterialPropertiesTable();
 
-	G4double rindexPMMA[2] = {1.59, 1.59};
+	G4double rindexPMMA[2] = {1.49, 1.49};
 
 	mptPMMA->AddProperty("RINDEX", smallArrayEnergy, rindexPMMA, 2);
 
 	PMMA->SetMaterialPropertiesTable(mptPMMA);
 
 	// wls polystyrene (wls fiber core)
+	// REF: (Y-11) https://www.phenix.bnl.gov/WWW/publish/donlynch/RXNP/Safety%20Review%206_22_06/Kuraray-PSF-Y11.pdf
 	G4Material *fiberCoreMat = new G4Material("VX_WLS_POLYSTYRENE", 1.05 * g / cm3, 1);
 	fiberCoreMat->AddMaterial(nist->FindOrBuildMaterial("G4_POLYSTYRENE"), 1.);
 	G4MaterialPropertiesTable *mptFiberCore = new G4MaterialPropertiesTable();
 
-	G4double rindexFiber[2] = {1.59, 1.59};
-	G4double absLengthFiber[2] = {3.5 * m, 3.5 * m};
-	G4double absFiberCore[50] = {
-		5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m,
-		5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m,
-		5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m, 5.40 * m,
-		5.40 * m, 5.40 * m, 1.10 * m, 1.10 * m, 1.10 * m, 1.10 * m, 1.10 * m, 1.10 * m, 1.10 * m,
-		1. * mm,  1. * mm,  1. * mm,  1. * mm,  1. * mm,  1. * mm,  1. * mm,  1. * mm,  1. * mm,
-		1. * mm,  1. * mm,  1. * mm,  1. * mm,  1. * mm
+	G4double rindexFiberCore[2] = {1.59, 1.59};
+	G4double bulkAbsLengthFiber[2] = {3.5 * m, 3.5 * m};
+	G4double peakAbsLengthFiber = 1. * mm;
+	G4double absSpectrumFiberCore[50] = {
+		0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 
+		0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.008573, 0.065726, 0.404907, 0.828498, 
+		0.782608, 0.961917, 0.831293, 0.691549, 0.617250, 0.551525, 0.402927, 0.285764, 
+		0.211465, 0.149531, 0.089851, 0.057539, 0.037746, 0., 0., 0., 0., 0.
 	};
+	G4double absLengthFiberCore[50];
+	for (G4int i = 0; i < 50; i++) {
+		absLengthFiberCore[i] = (absSpectrumFiberCore[i] > 0.) ? peakAbsLengthFiber / absSpectrumFiberCore[i] : bulkAbsLengthFiber[0];
+	}
 	G4double emissionFiberCore[50] = {
-		0.05, 0.10, 0.30, 0.50, 0.75, 1.00, 1.50, 1.85, 2.30, 2.75,
-        3.25, 3.80, 4.50, 5.20, 6.00, 7.00, 8.50, 9.50, 11.1, 12.4,
-		12.9, 13.0, 12.8, 12.3, 11.1, 11.0, 12.0, 11.0, 17.0, 16.9,
-		15.0, 9.00, 2.50, 1.00, 0.05, 0.00, 0.00, 0.00, 0.00, 0.00,
-		0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
+		0., 0., 0., 0., 0., 0., 0., 0., 0., 0.017589, 0.019470, 0.028345, 0.036557, 0.043630, 
+		0.052160, 0.072584, 0.086942, 0.135685, 0.175130, 0.245463, 0.297067, 0.372115, 0.527775, 
+		0.740046, 0.783649, 0.705925, 0.789530, 0.983787, 0.785159, 0.310975, 0.058571, 0.016159, 
+		0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.
 	};
 
-	mptFiberCore->AddProperty("RINDEX", smallArrayEnergy, rindexFiber, 2);
-	mptFiberCore->AddProperty("WLSABSLENGTH", bigArrayEnergy, absFiberCore, 50);
+	mptFiberCore->AddProperty("RINDEX", smallArrayEnergy, rindexFiberCore, 2);
+	mptFiberCore->AddProperty("ABSLENGTH", smallArrayEnergy, bulkAbsLengthFiber, 2);
+	mptFiberCore->AddProperty("WLSABSLENGTH", bigArrayEnergy, absLengthFiberCore, 50);
 	mptFiberCore->AddProperty("WLSCOMPONENT", bigArrayEnergy, emissionFiberCore, 50);
 	mptFiberCore->AddConstProperty("WLSTIMECONSTANT", 0.5 * ns);
 
@@ -176,7 +197,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//-----------------------------------------------------------------------------
 
 	//	worldbox
-	G4Box *solidWorld 					= new G4Box("solidWorld", 0.5 * m, 0.5 * m, 0.5 * m);
+	G4Box *solidWorld 					= new G4Box("solidWorld", assemblyWidth / 2 + 0.05 * m, assemblyHeight / 2 + 0.05 * m, assemblyLength / 2 + 0.05 * m);
 
 	G4LogicalVolume *logicWorld 		= new G4LogicalVolume(solidWorld, airMat, "logicWorld");
 	G4VPhysicalVolume *physWorld 		= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, checkOverlaps);
@@ -327,20 +348,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//	detector module placements
 	//-----------------------------------------------------------------------------
 
-	char assemblyName[] = "physAssembly000";
-
-	auto rot4 = new G4RotationMatrix();
-	rot4->rotateY(-90. * deg);
-
-	for (int y = 0; y < 8; y++) {
-		for (int x = 0; x < 8; x++) {
-			new G4PVPlacement(0, G4ThreeVector(-barWidth * 3.5 + barWidth * x, -barHeight * 3.5 + barHeight * (2 * y), 0.), logicAssembly, assemblyName, logicWorld, false, 0, checkOverlaps);
-		}
-		for (int z = 0; z < 8; z++) {
-			new G4PVPlacement(rot4, G4ThreeVector(0.,-barHeight * 3.5 + barHeight * (2 * y + 1), -barWidth * 3.5 + barWidth * z), logicAssembly, assemblyName, logicWorld, false, 0, checkOverlaps);
-		}
-	}
-
+	new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicAssembly, "physAssembly", logicWorld, false, 0, checkOverlaps);
 
 	
 
@@ -355,4 +363,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 void DetectorConstruction::ConstructSDandField() {
 
+	auto *SD = new SensitiveDetector("SiPMSD", outFile);
+
+	G4SDManager::GetSDMpointer()->AddNewDetector(SD);
+
+	logicSiPM->SetSensitiveDetector(SD);
 }

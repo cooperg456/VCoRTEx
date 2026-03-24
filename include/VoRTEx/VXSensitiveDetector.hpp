@@ -8,11 +8,19 @@
 
 class SensitiveDetector : public G4VSensitiveDetector {
 public:
-	SensitiveDetector(G4String);
+	SensitiveDetector(G4String, G4String);
 	~SensitiveDetector() override = default;
 
 private:
-	G4double fTotalEnergyDeposit;
+	struct PhotonHit {
+		G4ThreeVector pos;
+		G4double energy;
+		G4double time;
+	};
+
+	std::vector<PhotonHit> hits{};
+
+	G4String outFile;
 
 	virtual void Initialize(G4HCofThisEvent *) override;
 	virtual void EndOfEvent(G4HCofThisEvent *) override;
