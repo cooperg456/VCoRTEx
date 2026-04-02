@@ -8,7 +8,7 @@
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
 public:
-	DetectorConstruction(G4String);
+	DetectorConstruction() = default;
 	~DetectorConstruction() override = default;
 
 	virtual G4VPhysicalVolume *Construct() override;

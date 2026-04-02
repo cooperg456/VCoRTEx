@@ -20,8 +20,6 @@ Tutorials referenced:
 #include "VXDetectorConstruction.hpp"
 #include "VXActionInitialization.hpp"
 
-#include "CLI11.hpp"
-
 #include "G4RunManagerFactory.hh"
 #include "G4UImanager.hh"
 #include "G4UIExecutive.hh"
@@ -32,45 +30,6 @@ Tutorials referenced:
 
 
 int main(int argc, char** argv) {
-
-	//	cli
-	CLI::App app{"VoRTEx — Virtual Cosmic Ray Tracker Experiment"};
-
-	G4String outFile;
-	G4String macFile;
-	G4int nThreads;
-	std::vector<double> gunPos;
-	std::vector<double> gunMom;
-	G4double gunEnergy;
-	G4String particleName;
-
-	app.add_option("-o,--output", outFile, "Output filename")
-		->default_val("output.csv");
-	app.add_option("-t,--threads", nThreads, "Number of worker threads")
-		->default_val(1)
-		->check(CLI::PositiveNumber);
-	app.add_option("-p,--position", gunPos, "Gun position in mm (x y z)")
-		->expected(3)
-		->default_val(std::vector<double>{50., 50., 50.});
-	app.add_option("-d,--direction", gunMom, "Gun momentum direction (x y z)")
-		->expected(3)
-		->default_val(std::vector<double>{-1., -1., -1.});
-	app.add_option("-e,--energy", gunEnergy, "Particle energy in MeV")
-		->default_val(1000.);
-	app.add_option("-P,--particle", particleName, "Particle type (e.g. mu-, e-, proton)")
-		->default_val("mu-");
-	app.add_option("macro", macFile, "Geant4 macro file (interactive if not given)");
-
-	CLI11_PARSE(app, argc, argv);
-
-	bool interactive = macFile.empty();
-
-	G4ThreeVector gunPosition(gunPos[0], gunPos[1], gunPos[2]);
-	G4ThreeVector gunMomentum(gunMom[0], gunMom[1], gunMom[2]);
-	
-
-
-
 
 	//	splash text
 	std::cout << R"(
@@ -95,10 +54,9 @@ int main(int argc, char** argv) {
 
 	//	run manager
 	auto runManager = G4RunManagerFactory::CreateRunManager();
-	runManager->SetNumberOfThreads(nThreads);
 	runManager->SetUserInitialization(new PhysicsList());
-	runManager->SetUserInitialization(new DetectorConstruction(outFile));
-	runManager->SetUserInitialization(new ActionInitialization(gunPosition, gunMomentum, gunEnergy, particleName));
+	runManager->SetUserInitialization(new DetectorConstruction());
+	runManager->SetUserInitialization(new ActionInitialization());
 	runManager->Initialize();
 
 	//	vis manager
@@ -109,7 +67,7 @@ int main(int argc, char** argv) {
 	G4UImanager *uiManager = G4UImanager::GetUIpointer();
 
 	//	start session
-	if (interactive) {
+	if (argc == 1) {
 		//	interactive mode
 		G4UIExecutive *ui = new G4UIExecutive(argc, argv);
 	    uiManager->ApplyCommand("/control/execute vis.mac");
@@ -119,7 +77,7 @@ int main(int argc, char** argv) {
 	else {
 		//	batch mode
 		G4String command = "/control/execute ";
-		uiManager->ApplyCommand(command + macFile);
+		uiManager->ApplyCommand(command + argv[1]);
 	}
 
 	//	cleanup

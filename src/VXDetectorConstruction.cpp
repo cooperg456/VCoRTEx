@@ -20,14 +20,6 @@
 
 
 
-DetectorConstruction::DetectorConstruction(G4String outputFilename) : G4VUserDetectorConstruction() {
-	outFile = outputFilename;
-}
-
-
-
-
-
 G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	G4bool checkOverlaps = true;
@@ -197,7 +189,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//-----------------------------------------------------------------------------
 
 	//	worldbox
-	G4Box *solidWorld 					= new G4Box("solidWorld", assemblyWidth / 2 + 0.05 * m, assemblyHeight / 2 + 0.05 * m, assemblyLength / 2 + 0.05 * m);
+	G4Box *solidWorld 					= new G4Box("solidWorld", assemblyLength / 2 + 0.05 * m, assemblyLength / 2 + 0.05 * m, assemblyLength / 2 + 0.05 * m);
 
 	G4LogicalVolume *logicWorld 		= new G4LogicalVolume(solidWorld, airMat, "logicWorld");
 	G4VPhysicalVolume *physWorld 		= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, checkOverlaps);
@@ -347,8 +339,64 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//-----------------------------------------------------------------------------
 	//	detector module placements
 	//-----------------------------------------------------------------------------
+	
+	auto rot4 = new G4RotationMatrix();
+	rot4->rotateY(-90. * deg);
 
-	new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicAssembly, "physAssembly", logicWorld, false, 0, checkOverlaps);
+	std::vector<std::pair<G4RotationMatrix*, G4ThreeVector>> placements = {
+		//	layer 1 x
+		{0, {-140, -145, 0}},     {0, {-100, -145, 0}},      {0, {-60, -145, 0}},     {0, {-20, -145, 0}},
+		{0, {20, -145, 0}},       {0, {60, -145, 0}},        {0, {100, -145, 0}},     {0, {140, -145, 0}},
+		//	layer 1 y
+		{rot4, {0, -135, -140}},  {rot4, {0, -135, -100}},   {rot4, {0, -135, -60}},  {rot4, {0, -135, -20}},
+		{rot4, {0, -135, 20}},    {rot4, {0, -135, 60}},     {rot4, {0, -135, 100}},  {rot4, {0, -135, 140}},
+		//	layer 2 x
+		{0, {-140, -105, 0}},     {0, {-100, -105, 0}},      {0, {-60, -105, 0}},     {0, {-20, -105, 0}},
+		{0, {20, -105, 0}},       {0, {60, -105, 0}},        {0, {100, -105, 0}},     {0, {140, -105, 0}},
+		//	layer 2 y
+		{rot4, {0, -95, -140}},   {rot4, {0, -95, -100}},    {rot4, {0, -95, -60}},   {rot4, {0, -95, -20}},
+		{rot4, {0, -95, 20}},     {rot4, {0, -95, 60}},      {rot4, {0, -95, 100}},   {rot4, {0, -95, 140}},
+		//	layer 3 x
+		{0, {-140, -65, 0}},      {0, {-100, -65, 0}},       {0, {-60, -65, 0}},      {0, {-20, -65, 0}},
+		{0, {20, -65, 0}},        {0, {60, -65, 0}},         {0, {100, -65, 0}},      {0, {140, -65, 0}},
+		//	layer 3 y
+		{rot4, {0, -55, -140}},   {rot4, {0, -55, -100}},    {rot4, {0, -55, -60}},   {rot4, {0, -55, -20}},
+		{rot4, {0, -55, 20}},     {rot4, {0, -55, 60}},      {rot4, {0, -55, 100}},   {rot4, {0, -55, 140}},
+		//	layer 4 x
+		{0, {-140, -25, 0}},      {0, {-100, -25, 0}},       {0, {-60, -25, 0}},      {0, {-20, -25, 0}},
+		{0, {20, -25, 0}},        {0, {60, -25, 0}},         {0, {100, -25, 0}},      {0, {140, -25, 0}},
+		//	layer 4 y
+		{rot4, {0, -15, -140}},   {rot4, {0, -15, -100}},    {rot4, {0, -15, -60}},   {rot4, {0, -15, -20}},
+		{rot4, {0, -15, 20}},     {rot4, {0, -15, 60}},      {rot4, {0, -15, 100}},   {rot4, {0, -15, 140}},
+		//	layer 5 x
+		{0, {-140, 15, 0}},       {0, {-100, 15, 0}},        {0, {-60, 15, 0}},       {0, {-20, 15, 0}},
+		{0, {20, 15, 0}},         {0, {60, 15, 0}},          {0, {100, 15, 0}},       {0, {140, 15, 0}},
+		//	layer 5 y
+		{rot4, {0, 25, -140}},    {rot4, {0, 25, -100}},     {rot4, {0, 25, -60}},    {rot4, {0, 25, -20}},
+		{rot4, {0, 25, 20}},      {rot4, {0, 25, 60}},       {rot4, {0, 25, 100}},    {rot4, {0, 25, 140}},
+		//	layer 6 x
+		{0, {-140, 55, 0}},       {0, {-100, 55, 0}},        {0, {-60, 55, 0}},       {0, {-20, 55, 0}},
+		{0, {20, 55, 0}},         {0, {60, 55, 0}},          {0, {100, 55, 0}},       {0, {140, 55, 0}},
+		//	layer 6 y
+		{rot4, {0, 65, -140}},    {rot4, {0, 65, -100}},     {rot4, {0, 65, -60}},    {rot4, {0, 65, -20}},
+		{rot4, {0, 65, 20}},      {rot4, {0, 65, 60}},       {rot4, {0, 65, 100}},    {rot4, {0, 65, 140}},
+		//	layer 7 x
+		{0, {-140, 95, 0}},       {0, {-100, 95, 0}},        {0, {-60, 95, 0}},       {0, {-20, 95, 0}},
+		{0, {20, 95, 0}},         {0, {60, 95, 0}},          {0, {100, 95, 0}},       {0, {140, 95, 0}},
+		//	layer 7 y
+		{rot4, {0, 105, -140}},   {rot4, {0, 105, -100}},    {rot4, {0, 105, -60}},   {rot4, {0, 105, -20}},
+		{rot4, {0, 105, 20}},     {rot4, {0, 105, 60}},      {rot4, {0, 105, 100}},   {rot4, {0, 105, 140}},
+		//	layer 8 x
+		{0, {-140, 135, 0}},      {0, {-100, 135, 0}},       {0, {-60, 135, 0}},   	  {0, {-20, 135, 0}},
+		{0, {20, 135, 0}},        {0, {60, 135, 0}},         {0, {100, 135, 0}},      {0, {140, 135, 0}},
+		//	layer 8 y
+		{rot4, {0, 145, -140}},   {rot4, {0, 145, -100}},    {rot4, {0, 145, -60}},   {rot4, {0, 145, -20}},
+		{rot4, {0, 145, 20}},     {rot4, {0, 145, 60}},      {rot4, {0, 145, 100}},   {rot4, {0, 145, 140}}
+	};
+
+	for (size_t i = 0; i < placements.size(); i++) {
+		new G4PVPlacement(placements[i].first, placements[i].second, logicAssembly, "physAssembly", logicWorld, false, i, checkOverlaps);
+	}
 
 	
 
@@ -363,7 +411,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 void DetectorConstruction::ConstructSDandField() {
 
-	auto *SD = new SensitiveDetector("SiPMSD", outFile);
+	auto *SD = new SensitiveDetector("SiPMSD");
 
 	G4SDManager::GetSDMpointer()->AddNewDetector(SD);
 

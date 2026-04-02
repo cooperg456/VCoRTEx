@@ -8,13 +8,13 @@
 
 
 
-PrimaryGenerator::PrimaryGenerator(G4ThreeVector gunPosition, G4ThreeVector gunMomentum, G4double gunEnergy, G4String particleName) {
+PrimaryGenerator::PrimaryGenerator() {
 	fParticleGun = new G4ParticleGun(1);
 
-	fParticleGun->SetParticlePosition(gunPosition);
-	fParticleGun->SetParticleMomentumDirection(gunMomentum);
-	fParticleGun->SetParticleEnergy(gunEnergy);
-	fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(particleName));
+	fParticleGun->SetParticlePosition(G4ThreeVector(200, 200, 200));
+	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(-1, -1, -1));
+	fParticleGun->SetParticleEnergy(1000 * MeV);
+	fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("mu-"));
 }
 
 

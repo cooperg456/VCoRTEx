@@ -11,9 +11,8 @@
 
 
 
-SensitiveDetector::SensitiveDetector(G4String name, G4String outputFilename) : G4VSensitiveDetector(name) {
+SensitiveDetector::SensitiveDetector(G4String name) : G4VSensitiveDetector(name) {
 	hits.resize(0);
-	outFile = outputFilename;
 }
 
 
@@ -37,7 +36,8 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *) {
 	hits.push_back({
 		aStep->GetPreStepPoint()->GetPosition(),
 		aStep->GetPreStepPoint()->GetKineticEnergy(),
-    	aStep->GetPreStepPoint()->GetGlobalTime()
+    	aStep->GetPreStepPoint()->GetGlobalTime(),
+		aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber(1)
 	});
 
 	track->SetTrackStatus(fStopAndKill);
@@ -52,14 +52,15 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *) {
 void SensitiveDetector::EndOfEvent(G4HCofThisEvent *) {
 	G4cout << "SiPM detected " << hits.size() << " optical photons" << G4endl;
 	
-	std::ofstream file(outFile, std::ios::app);
+	std::ofstream file("outFile.csv", std::ios::app);
 	file << "x(mm),y(mm),z(mm),energy(eV),time(ns)\n";
 	for (PhotonHit hit : hits) {
 		file << hit.pos.x() / mm << "," 
 			 << hit.pos.y() / mm << "," 
 			 << hit.pos.z() / mm << "," 
 			 << hit.energy / eV << "," 
-			 << hit.time / ns << "\n" ;
+			 << hit.time / ns << ","
+			 << hit.detectorID << "\n" ;
 	}
 	file.close();
 }
