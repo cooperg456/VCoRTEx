@@ -12,7 +12,6 @@ std::mutex RunAction::fMutex;
 
 G4double RunAction::fX = 0.;
 G4double RunAction::fY = 0.;
-G4double RunAction::fZ = 0.;
 G4double RunAction::fEnergy = 0.;
 G4double RunAction::fTime = 0.;
 G4int RunAction::fDetID = 0;
@@ -57,7 +56,6 @@ void RunAction::BeginOfRunAction(const G4Run *run) {
 	fTree = new TTree(fileName, fileName);
 	fTree->Branch("x_mm", &fX);
 	fTree->Branch("y_mm", &fY);
-	fTree->Branch("z_mm", &fZ);
 	fTree->Branch("energy_eV", &fEnergy);
 	fTree->Branch("time_ns", &fTime);
 	fTree->Branch("detID", &fDetID);
@@ -82,12 +80,11 @@ void RunAction::EndOfRunAction(const G4Run *) {
 
 
 
-void RunAction::FillHit(G4double x, G4double y, G4double z, G4double energy, G4double time, G4int detID, G4int eventID) {
+void RunAction::FillHit(G4double x, G4double y, G4double energy, G4double time, G4int detID, G4int eventID) {
 	std::lock_guard<std::mutex> lock(fMutex);
 
 	fX = x;  
 	fY = y;  
-	fZ = z;
 	fEnergy = energy;
 	fTime = time;
 	fDetID = detID;

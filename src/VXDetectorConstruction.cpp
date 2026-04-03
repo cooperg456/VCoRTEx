@@ -119,7 +119,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	mptScint->AddProperty("RINDEX", smallArrayEnergy, rindexScint, 2);
 	mptScint->AddProperty("ABSLENGTH", smallArrayEnergy, absLengthScint, 2);
 	mptScint->AddProperty("SCINTILLATIONCOMPONENT1", bigArrayEnergy, emissionScint, 50);
-	mptScint->AddConstProperty("SCINTILLATIONYIELD", 8. / MeV);	//	REVERT BEFORE PUSH
+	mptScint->AddConstProperty("SCINTILLATIONYIELD", 8. / keV);
 	mptScint->AddConstProperty("RESOLUTIONSCALE", 1.0);
 	mptScint->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 10. * ns);
 

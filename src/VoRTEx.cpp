@@ -42,9 +42,9 @@ int main(int argc, char** argv) {
 │                                                            │
 │            VIRTUAL COSMIC RAY TRACKER EXPERIMENT           │
 ├────────────────────────────────────────────────────────────┤
-│  VERSION  :  v0.0.1.                                       │
+│  VERSION  :  v0.1.0                                        │
 │  AUTHOR   :  C. Gray                                       │
-│  DATE     :  2/2026                           Pitt-CoRTEx  │
+│  DATE     :  4/2026                           Pitt-CoRTEx  │
 └────────────────────────────────────────────────────────────┘
 	)";
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16...3.27 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(VoRTEx VERSION 0.0.1)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -27,3 +27,6 @@ target_link_libraries(vcortex_sim PRIVATE ${Geant4_LIBRARIES} ROOT::Core ROOT::T
 target_compile_definitions(vcortex_sim PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
 add_custom_target(VoRTEx DEPENDS vcortex_sim)
+
+install(TARGETS vcortex_sim RUNTIME DESTINATION .)
+install(FILES ${mac} DESTINATION .)

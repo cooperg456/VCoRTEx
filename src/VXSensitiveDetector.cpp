@@ -41,14 +41,15 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *) {
 	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber(1);
 	G4StepPoint *pre = aStep->GetPreStepPoint();
 
+	G4ThreeVector localPos = aStep->GetPreStepPoint()->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(pre->GetPosition());
+
 	auto *runAction = const_cast<RunAction *>(
 		static_cast<const RunAction *>(
 			G4RunManager::GetRunManager()->GetUserRunAction()));
 
 	runAction->FillHit(
-		pre->GetPosition().x() / mm,
-		pre->GetPosition().y() / mm,
-		pre->GetPosition().z() / mm,
+		localPos.x() / mm,
+		localPos.y() / mm,
 		pre->GetKineticEnergy() / eV,
 		pre->GetGlobalTime() / ns,
 		copyNo,

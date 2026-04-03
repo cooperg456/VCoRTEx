@@ -20,7 +20,7 @@ public:
 	virtual void BeginOfRunAction(const G4Run *) override;
 	virtual void EndOfRunAction(const G4Run *) override;
 
-	void FillHit(G4double, G4double, G4double, G4double, G4double, G4int, G4int);
+	void FillHit(G4double, G4double, G4double, G4double, G4int, G4int);
 
 private:
 	static TFile *fFile;
@@ -29,7 +29,6 @@ private:
 
 	static G4double fX;
 	static G4double fY;
-	static G4double fZ;
 	static G4double fEnergy;
 	static G4double fTime;
 	static G4int fEventID;
