@@ -12,15 +12,6 @@ public:
 	~SensitiveDetector() override = default;
 
 private:
-	struct PhotonHit {
-		G4ThreeVector pos;
-		G4double energy;
-		G4double time;
-		G4int detectorID;
-	};
-
-	std::vector<PhotonHit> hits{};
-
 	virtual void Initialize(G4HCofThisEvent *) override;
 	virtual void EndOfEvent(G4HCofThisEvent *) override;
 
