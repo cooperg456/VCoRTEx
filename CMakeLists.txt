@@ -12,6 +12,8 @@ file(GLOB src ${CMAKE_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE headers ${CMAKE_SOURCE_DIR}/include/**/*.hpp)
 file(GLOB mac ${CMAKE_SOURCE_DIR}/macros/*.mac)
 file(COPY ${mac} DESTINATION ${CMAKE_BINARY_DIR}/)
+file(GLOB py ${CMAKE_SOURCE_DIR}/python/*.py)
+file(COPY ${py} DESTINATION ${CMAKE_BINARY_DIR}/)
 
 foreach(header ${headers})
     get_filename_component(dir ${header} DIRECTORY)
@@ -30,3 +32,4 @@ add_custom_target(VoRTEx DEPENDS vcortex_sim)
 
 install(TARGETS vcortex_sim RUNTIME DESTINATION .)
 install(FILES ${mac} DESTINATION .)
+install(FILES ${py} DESTINATION .)

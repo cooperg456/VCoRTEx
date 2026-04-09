@@ -341,7 +341,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//-----------------------------------------------------------------------------
 	
 	auto rot4 = new G4RotationMatrix();
-	rot4->rotateY(-90. * deg);
+	rot4->rotateY(90. * deg);
 
 	std::vector<std::pair<G4RotationMatrix*, G4ThreeVector>> placements = {
 		//	layer 1 x

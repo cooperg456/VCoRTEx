@@ -11,15 +11,11 @@ VoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulatio
 
 ## Installation
 
-VoRTEx is built using [CMake](https://cmake.org/download/) and requires both [Geant4](https://geant4.web.cern.ch/download/) and [ROOT](https://root.cern/install/). After installing these dependencies, source geant4:
+VoRTEx is built using [CMake](https://cmake.org/download/) and requires both [Geant4](https://geant4.web.cern.ch/download/) and [ROOT](https://root.cern/install/). After installing these dependencies, proceed with the build
 
 ```zsh
-source /path/to/geant4-install/bin/geant4.sh
-```
-Then proceed with the build
-```zsh
 mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/vortex-install
+cmake .. -DCMAKE_PREFIX_PATH=/path/to/geant4-install -DCMAKE_INSTALL_PREFIX=/path/to/vortex-install
 make -jN
 make install
 ```

@@ -45,3 +45,5 @@
 scripts
 build
 bin
+*.root
+__pycache__
