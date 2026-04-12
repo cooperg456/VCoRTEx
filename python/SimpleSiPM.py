@@ -71,10 +71,18 @@ hits = PhotonHitsFromROOT(
 
 def PhotonCount():
 	##	Applying photon detection efficiency PDE(λ) to each photon hit to approximate number of registered photons
+		
+	N_photons = np.sum(np.array([
+		len(np.ravel(hits[i]))
+		for i in range(len(hits))
+	]))
+
 	N_det = np.array([
 		np.sum(np.random.rand(len(hits[i])) < PhotonDetectionEfficiency(hits[i]))
 		for i in range(len(hits))
 	])
+
+	print(f"e_quantum = {np.sum(N_det) / N_photons}")
 
 	##	Ref: Hamamatsu S13360-2050VE datasheet spec
 	M = 1.7e6

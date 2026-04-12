@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
 	//	run manager
 	auto runManager = G4RunManagerFactory::CreateRunManager();
 	runManager->SetUserInitialization(new PhysicsList());
-	runManager->SetUserInitialization(new DetectorConstruction());
+	runManager->SetUserInitialization(new DetectorConstruction(std::stoi(argv[1])));
 	runManager->SetUserInitialization(new ActionInitialization());
 	runManager->Initialize();
 
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 	G4UImanager *uiManager = G4UImanager::GetUIpointer();
 
 	//	start session
-	if (argc == 1) {
+	if (argc == 2) {
 		//	interactive mode
 		G4UIExecutive *ui = new G4UIExecutive(argc, argv);
 	    uiManager->ApplyCommand("/control/execute vis.mac");
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 	else {
 		//	batch mode
 		G4String command = "/control/execute ";
-		uiManager->ApplyCommand(command + argv[1]);
+		uiManager->ApplyCommand(command + argv[2]);
 	}
 
 	//	cleanup
