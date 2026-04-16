@@ -1,5 +1,5 @@
-# VoRTEx
-VoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulation engine, built on top of Geant4, for the Pitt-CoRTEx muon detector. It serves multiple purposes:
+# VCoRTEx
+VCoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulation engine, built on top of Geant4, for the Pitt-CoRTEx muon detector. It serves multiple purposes:
 
 1)	To accurately model the generation and transport of photons inside the scintillator bars to the SiPMs
 
@@ -11,7 +11,7 @@ VoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulatio
 
 ## Installation
 
-VoRTEx is built using [CMake](https://cmake.org/download/) and requires both [Geant4](https://geant4.web.cern.ch/download/) and [ROOT](https://root.cern/install/). After installing these dependencies, proceed with the build
+VCoRTEx is built using [CMake](https://cmake.org/download/) and requires both [Geant4](https://geant4.web.cern.ch/download/) and [ROOT](https://root.cern/install/). After installing these dependencies, proceed with the build
 
 ```zsh
 mkdir build && cd build
@@ -20,20 +20,39 @@ make -jN
 make install
 ```
 
-where N is the number of threads.
+where N is the number of system threads.
 
 
 
 ## Usage
 
-VoRTEx can be ran in interactive mode, by not specifying a macro file
+VCoRTEx can be ran in interactive mode, by not specifying a macro file
 ```zsh
-./vcortex_sim
+./vcortex_sim c
 ```
 or in batch mode
 ```zsh
-./vcortex_sim batch.mac
+./vcortex_sim c batch.mac
 ```
+Where `c` is the configuration number (c=0 for full detector stack, c=1 for a single bar)
+
+
+
+## Output
+The VCoRTEx Geant4 application write photon hits to `vcortex_output.root` in the following format, with one TTree per run.
+
+| Item      | Description                  | Usage    |
+| :-------- | :--------------------------- | :------- |
+| x_mm      | x position on SiPM face (mm) | N/A      |
+| y_mm      | y position on SiPM face (mm) | N/A      |
+| energy_eV | photon energy (eV)           | SiPM sim |
+| time_ns   | time after event start (ns)  | N/A      |
+| detID     | SiPM number (copy #)         | SiPM sim |
+| eventID   | event number (particle #)    | SiPM sim |
+
+## Python
+
+Some examples python scripts are included for simulation of SiPM response, and track fitting (WIP)
 
 
 
