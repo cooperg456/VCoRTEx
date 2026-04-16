@@ -1,6 +1,6 @@
 /***************************************************************************************************************************
 
-VoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulation engine, built on top of Geant4, for
+VCoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulation engine, built on top of Geant4, for
 the Pitt-CoRTEx muon detector. It serves multiple purposes:
 
 	 1) To accurately model the generation and transportation of photons inside the scintillator bars to the SiPMs
@@ -30,28 +30,6 @@ Tutorials referenced:
 
 
 int main(int argc, char** argv) {
-
-	//	splash text
-	std::cout << R"(
-┌────────────────────────────────────────────────────────────┐
-│             _    __      ____  ____________                │
-│            | |  / /___  / __ \/_  __/ ____/  __            │
-│            | | / / __ \/ /_/ / / / / __/ | |/_/            │
-│            | |/ / /_/ / _, _/ / / / /____>  <              │
-│            |___/\____/_/ |_| /_/ /_____/_/|_|              │
-│                                                            │
-│            VIRTUAL COSMIC RAY TRACKER EXPERIMENT           │
-├────────────────────────────────────────────────────────────┤
-│  VERSION  :  v0.1.0                                        │
-│  AUTHOR   :  C. Gray                                       │
-│  DATE     :  4/2026                           Pitt-CoRTEx  │
-└────────────────────────────────────────────────────────────┘
-	)";
-
-
-
-
-
 	//	run manager
 	auto runManager = G4RunManagerFactory::CreateRunManager();
 	runManager->SetUserInitialization(new PhysicsList());
