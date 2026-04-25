@@ -57,8 +57,8 @@ Some examples python scripts are included for simulation of SiPM response, and t
 
 
 ## Documentation
-- [Project Proposal](docs/proposal.pdf)
-- [Presentation Slides](docs/slides.pdf)
+- [Project Proposal](docs/PHYS_1378_PROPOSAL.pdf)
+- [Presentation Slides](docs/PHYS_1378_PRESENTATION.pdf)
 
 
 
