@@ -7,7 +7,7 @@ VCoRTEx (Virtual Cosmic Ray Tracker Experiment, or Virtual CoRTEx) is a simulati
 
 3)	To serve as an educational tool that provides insight into the Pitt-CoRTEx detector's inner workings
 
-This project was developed as part of the Pitt-CoRTEx research group under Dr. Pranava Teja Surukuchi and Dr. Tae Min Hong, and as a final project for PHYS 1378 INTRODUCTION TO NUCLEAR AND PARTICLE PHYSICS at the University of Pittsburgh.
+This project was developed as part of the Pitt-CoRTEx research group under Dr. Pranava Teja Surukuchi and Dr. Tae Min Hong, and as a final project for PHYS 1378 Introduction to Nuclear and Particle Physics (Spring 2026) at the University of Pittsburgh.
 
 ## Installation
 
