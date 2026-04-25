@@ -56,6 +56,12 @@ Some examples python scripts are included for simulation of SiPM response, and t
 
 
 
+## Notes on Implementation
+
+The NVIDIA OptiX/Opticks optical photon transport detailed in the proposal and presentation slides is not included in this repository due to build complexity. The simulation defaults to standard multithreaded Geant4 optical physics. Contact the author for details on the full implementation.
+
+
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
