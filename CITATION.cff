@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Gray
+    given-names: Cooper
+    orcid: https://orcid.org/0009-0009-3553-5893
+title: VCoRTEx
+version: 1.0.0
+date-released: 2026-07-27
+url: https://github.com/cooperg456/VCoRTEx
